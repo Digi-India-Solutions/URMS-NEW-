@@ -1,45 +1,50 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddressTracePage extends StatefulWidget {
+  final String applicantName;
+  final String address;
+  final String contactNumber;
+
+  const AddressTracePage({
+    super.key,
+    required this.applicantName,
+    required this.address,
+    required this.contactNumber,
+  });
+
   @override
   State<AddressTracePage> createState() => _AddressTracePageState();
 }
 
 class _AddressTracePageState extends State<AddressTracePage> {
-  String? traced; // 'yes' or 'no'
+  String? traced;
+  String? companyExist;
+  String? entryAllowed;
+  String? detailShared;
+  // 'yes' or 'no'
 
-  // Image files for YES form
-  File? yesImage1;
-  File? yesImage2;
-
-  // Image files for NO form
-  File? noImage1;
-  File? noImage2;
+  // Shared image files for both YES and NO form
+  File? image1;
+  File? image2;
 
   final picker = ImagePicker();
 
-  Future<void> pickImage(bool isYesForm, int imageNumber) async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  Future<void> pickImage(int imageNumber) async {
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
     if (pickedFile != null) {
       setState(() {
-        if (isYesForm) {
-          if (imageNumber == 1) yesImage1 = File(pickedFile.path);
-          if (imageNumber == 2) yesImage2 = File(pickedFile.path);
-        } else {
-          if (imageNumber == 1) noImage1 = File(pickedFile.path);
-          if (imageNumber == 2) noImage2 = File(pickedFile.path);
-        }
+        if (imageNumber == 1) image1 = File(pickedFile.path);
+        if (imageNumber == 2) image2 = File(pickedFile.path);
       });
     }
   }
 
-  Widget imagePickerBlock(bool isYesForm, int imageNumber, File? imageFile) {
+  Widget imagePickerBlock(int imageNumber, File? imageFile) {
     return GestureDetector(
-      onTap: () => pickImage(isYesForm, imageNumber),
+      onTap: () => pickImage(imageNumber),
       child: Container(
         height: 150,
         width: 150,
@@ -53,9 +58,9 @@ class _AddressTracePageState extends State<AddressTracePage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: const [
-              Icon(Icons.image, size: 50, color: Colors.grey),
+              Icon(Icons.camera_alt, size: 50, color: Colors.grey),
               SizedBox(height: 8),
-              Text('Upload Image'),
+              Text('Capture Image'),
             ],
           ),
         ),
@@ -63,85 +68,185 @@ class _AddressTracePageState extends State<AddressTracePage> {
     );
   }
 
-  Widget formYes() {
+  Widget addressTracedYes() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // const Text('Form for YES:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+
         const Text(
-          'Form for YES:',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          'Company Exist?',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 12),
-        TextFormField(
-          decoration: const InputDecoration(
-            labelText: 'Field 1 (YES form)',
-            border: OutlineInputBorder(),
+        ListTile(
+          title: const Text('Yes'),
+          leading: Radio<String>(
+            value: 'yes',
+            groupValue: companyExist,
+            onChanged: (value) => setState(() => companyExist = value),
           ),
         ),
-        const SizedBox(height: 12),
-        TextFormField(
-          decoration: const InputDecoration(
-            labelText: 'Field 2 (YES form)',
-            border: OutlineInputBorder(),
+        ListTile(
+          title: const Text('No'),
+          leading: Radio<String>(
+            value: 'no',
+            groupValue: companyExist,
+            onChanged: (value) => setState(() => companyExist = value),
           ),
         ),
         const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            imagePickerBlock(true, 1, yesImage1),
-            imagePickerBlock(true, 2, yesImage2),
-          ],
-        ),
+        const SizedBox(height: 20),
+        if (companyExist == 'yes') companyExistYes(),
+        if (companyExist == 'no') companyExistNo(),
+        const SizedBox(height: 40),
       ],
     );
   }
 
-  Widget formNo() {
+  Widget addressTracedNo() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Form for NO:',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
+        const Text('Form for NO:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         const SizedBox(height: 12),
-        TextFormField(
-          decoration: const InputDecoration(
-            labelText: 'Field 1 (NO form)',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 12),
-        TextFormField(
-          decoration: const InputDecoration(
-            labelText: 'Field 2 (NO form)',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            imagePickerBlock(false, 1, noImage1),
-            imagePickerBlock(false, 2, noImage2),
-          ],
-        ),
       ],
     );
   }
+
+  Widget companyExistYes() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // const Text('Form for YES:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+
+        const Text(
+          'Entry Allowed?',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        ListTile(
+          title: const Text('Yes'),
+          leading: Radio<String>(
+            value: 'yes',
+            groupValue: entryAllowed,
+            onChanged: (value) => setState(() => entryAllowed = value),
+          ),
+        ),
+        ListTile(
+          title: const Text('No'),
+          leading: Radio<String>(
+            value: 'no',
+            groupValue: entryAllowed,
+            onChanged: (value) => setState(() => entryAllowed = value),
+          ),
+        ),
+        const SizedBox(height: 20),
+        const SizedBox(height: 20),
+        if (entryAllowed == 'yes') entryAllowedYes(),
+        if (entryAllowed == 'no') entryAllowedNo(),
+        const SizedBox(height: 40),
+      ],
+    );
+  }
+
+
+  Widget companyExistNo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Form for NO:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
+
+  Widget entryAllowedYes() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // const Text('Form for YES:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+
+        const Text(
+          'Details Shared By Colleague? ',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        ListTile(
+          title: const Text('Confirmed'),
+          leading: Radio<String>(
+            value: 'confirmed',
+            groupValue: detailShared,
+            onChanged: (value) => setState(() => detailShared = value),
+          ),
+        ),
+        ListTile(
+          title: const Text('Not Confirmed'),
+          leading: Radio<String>(
+            value: 'notConfirmed',
+            groupValue: detailShared,
+            onChanged: (value) => setState(() => detailShared = value),
+          ),
+        ),
+        const SizedBox(height: 20),
+        const SizedBox(height: 20),
+        if (detailShared == 'confirmed') detailsSharedYes(),
+        if (detailShared == 'notConfirmed') detailsSharedNo(),
+        const SizedBox(height: 40),
+      ],
+    );
+  }
+
+  Widget entryAllowedNo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Form for NO:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
+  Widget detailsSharedYes() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Form for Yes:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
+
+  Widget detailsSharedNo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Form for NO:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Address Traced?'),
-      ),
-      body: Padding(
+      appBar: AppBar(title: const Text('Address Traced?')),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text("Applicant: ${widget.applicantName}", style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text("Address: ${widget.address}"),
+            Text("Contact: ${widget.contactNumber}"),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                imagePickerBlock(1, image1),
+                imagePickerBlock(2, image2),
+              ],
+            ),
             const Text(
               'Is address traced?',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -151,11 +256,7 @@ class _AddressTracePageState extends State<AddressTracePage> {
               leading: Radio<String>(
                 value: 'yes',
                 groupValue: traced,
-                onChanged: (value) {
-                  setState(() {
-                    traced = value;
-                  });
-                },
+                onChanged: (value) => setState(() => traced = value),
               ),
             ),
             ListTile(
@@ -163,17 +264,13 @@ class _AddressTracePageState extends State<AddressTracePage> {
               leading: Radio<String>(
                 value: 'no',
                 groupValue: traced,
-                onChanged: (value) {
-                  setState(() {
-                    traced = value;
-                  });
-                },
+                onChanged: (value) => setState(() => traced = value),
               ),
             ),
             const SizedBox(height: 20),
-
-            if (traced == 'yes') formYes(),
-            if (traced == 'no') formNo(),
+            if (traced == 'yes') addressTracedYes(),
+            if (traced == 'no') addressTracedNo(),
+            const SizedBox(height: 40),
           ],
         ),
       ),

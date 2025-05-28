@@ -12,7 +12,7 @@ class ApiConstants {
   static const String createField = '$baseUrl/create-field';
 
   // Task APIs
-  static const String getAllTasks = '$baseUrl/get-all-tasks';
+  static const String getAllTasks = '$baseUrl/get-all-task';
   static const String createTask = '$baseUrl/create-task';
   static const String updateTask = '$baseUrl/update-task';
   static const String deleteTask = '$baseUrl/delete-task';
