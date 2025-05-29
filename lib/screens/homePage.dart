@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../officeRecords/page1.dart';
+import '../officeRecords/offileProfile.dart';
 import '../services/api_services.dart';
 
 class HomePage extends StatefulWidget {
@@ -102,7 +102,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => AddressTracePage(
+                            builder: (_) => OfficeProfile(
                               applicantName: task['applicantName'] ?? 'N/A',
                               address: task['address'] ?? 'N/A',
                               contactNumber: task['contactNumber'] ?? 'N/A',
