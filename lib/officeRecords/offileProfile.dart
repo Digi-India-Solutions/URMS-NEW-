@@ -6,18 +6,21 @@ import 'package:exif/exif.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+import 'package:urms/officeRecords/submit_Page.dart';
 
 
 class OfficeProfile extends StatefulWidget {
   final String applicantName;
   final String address;
   final String contactNumber;
+  final String taskId;
 
   const OfficeProfile({
     super.key,
     required this.applicantName,
     required this.address,
     required this.contactNumber,
+    required this.taskId,
   });
 
   @override
@@ -32,6 +35,8 @@ class _OfficeProfileState extends State<OfficeProfile> {
   String? reasonOfUntrace;
   String? requiredToTrace;
   String? callingResponse;
+  String? metNeighbourFirst;
+  String? metNeighbourSecond;
   String? lastLocation;
   String? otherObservation;
   String? confirmationAboutCompany;
@@ -496,6 +501,35 @@ Widget companyExistNo() {
               },
             ),
           ),
+
+        const SizedBox(height: 20,),
+        const Text('Met Neighbours ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+
+        TextField(
+          decoration: const InputDecoration(
+            labelText: 'Met 1st Neighbour',
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (value) {
+            setState(() {
+              metNeighbourFirst = value;  // Store the custom input directly in reasonOfUntrace
+            });
+          },
+        ),
+        const SizedBox(height: 10),
+
+        TextField(
+          decoration: const InputDecoration(
+            labelText: 'Met 2nd Neighbour',
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (value) {
+            setState(() {
+              metNeighbourSecond = value;  // Store the custom input directly in reasonOfUntrace
+            });
+          },
+        ),
+
 
         const SizedBox(height: 20),
 
@@ -2164,7 +2198,7 @@ Widget detailsSharedNo() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Address Traced?')),
+      appBar: AppBar(title: const Text('Office Profile')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -2224,7 +2258,65 @@ Widget detailsSharedNo() {
             const SizedBox(height: 20),
             if (addressTraced == 'yes') addressTracedYes(),
             if (addressTraced == 'no') addressTracedNo(),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () {
+                final formData = {
+                  'applicantName': widget.applicantName,
+                  'address': widget.address,
+                  'contactNumber': widget.contactNumber,
+                  'taskId': widget.taskId,
+                  'addressTraced': addressTraced,
+                  'metNeighbourFirst': metNeighbourFirst,
+                  'metNeighbourSecond' : metNeighbourSecond,
+                  'companyExist': companyExist,
+                  'entryAllowed': entryAllowed,
+                  'detailSharedByColleague': detailSharedByColleague,
+                  'reasonOfUntrace': reasonOfUntrace,
+                  'requiredToTrace': requiredToTrace,
+                  'callingResponse': callingResponse,
+                  'lastLocation': lastLocation,
+                  'otherObservation': otherObservation,
+                  'confirmationAboutCompany': confirmationAboutCompany,
+                  'currentCompanyExists': currentCompanyExists,
+                  'totalFloor': totalFloor,
+                  'permissiveExistsOnWhichFloor': permissiveExistsOnWhichFloor,
+                  'landArea': landArea,
+                  'localityOfAddress': localityOfAddress,
+                  'nameBoardSeen': nameBoardSeen,
+                  'metPersonName': metPersonName,
+                  'metPersonDesignation': metPersonDesignation,
+                  'anyConfirmation': anyConfirmation,
+                  'firstColleagueName': firstColleagueName,
+                  'firstColleagueDesignation': firstColleagueDesignation,
+                  'secondColleagueName': secondColleagueName,
+                  'secondColleagueDesignation': secondColleagueDesignation,
+                  'totalEmployee': totalEmployee,
+                  'seenEmployee': seenEmployee,
+                  'natureOfBusiness': natureOfBusiness,
+                  'setupAndActivity': setupAndActivity,
+                  'applicantDesignation': applicantDesignation,
+                  'idCardShown': idCardShown,
+                  'tenureOfWorking': tenureOfWorking,
+                  'image1': image1,
+                  'image2': image2,
+                  'image3': image3,
+                  'image4': image4,
+                  'image5': image5,
+                  'image6': image6,
+                };
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SubmitPage(formData: formData),
+                  ),
+                );
+              },
+              child: const Text('Next'),
+            ),
+
           ],
         ),
       ),

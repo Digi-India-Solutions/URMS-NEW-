@@ -106,6 +106,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                               applicantName: task['applicantName'] ?? 'N/A',
                               address: task['address'] ?? 'N/A',
                               contactNumber: task['contactNumber'] ?? 'N/A',
+                              taskId: task['_id'] ?? 'N/A',
                             ),
                           ),
                         );
