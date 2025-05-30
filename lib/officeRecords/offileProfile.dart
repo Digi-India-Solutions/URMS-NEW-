@@ -7,6 +7,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:urms/officeRecords/submit_Page.dart';
+import 'imageWithWatermark.dart';
+
 
 
 class OfficeProfile extends StatefulWidget {
@@ -14,6 +16,8 @@ class OfficeProfile extends StatefulWidget {
   final String address;
   final String contactNumber;
   final String taskId;
+
+
 
   const OfficeProfile({
     super.key,
@@ -75,23 +79,152 @@ class _OfficeProfileState extends State<OfficeProfile> {
   File? image5;
   File? image6;
 
+
+  bool get isFormValid {
+    if (addressTraced == 'no') {
+      return reasonOfUntrace != null &&
+          requiredToTrace != null &&
+          callingResponse != null &&
+          lastLocation?.isNotEmpty == true &&
+          otherObservation?.isNotEmpty == true &&
+          image1 != null &&
+          image2 != null &&
+          image3 != null &&
+          image4 != null &&
+          image5 != null &&
+          image6 != null;
+    }
+
+    if (addressTraced == 'yes' && companyExist == 'no') {
+
+        return callingResponse != null &&
+            metNeighbourFirst?.isNotEmpty == true &&
+            metNeighbourSecond?.isNotEmpty == true &&
+            confirmationAboutCompany != null &&
+            currentCompanyExists?.isNotEmpty == true &&
+            totalFloor != null &&
+            permissiveExistsOnWhichFloor != null &&
+            landArea?.isNotEmpty == true &&
+            localityOfAddress != null &&
+            otherObservation?.isNotEmpty == true &&
+            image1 != null &&
+            image2 != null &&
+            image3 != null &&
+            image4 != null &&
+            image5 != null &&
+            image6 != null;
+
+    }
+
+    if (addressTraced == 'yes' && companyExist == 'yes' && entryAllowed == 'no') {
+
+        return callingResponse != null &&
+            totalFloor != null &&
+            permissiveExistsOnWhichFloor != null &&
+            landArea?.isNotEmpty == true &&
+            localityOfAddress != null &&
+            nameBoardSeen != null &&
+            metPersonName?.isNotEmpty == true &&
+            metPersonDesignation?.isNotEmpty == true &&
+            anyConfirmation != null &&
+            otherObservation?.isNotEmpty == true &&
+            image1 != null &&
+            image2 != null &&
+            image3 != null &&
+            image4 != null &&
+            image5 != null &&
+            image6 != null;
+      }
+
+    if (addressTraced == 'yes' && companyExist == 'yes' && entryAllowed == 'yes' && detailSharedByColleague == 'notConfirmed') {
+
+      return firstColleagueName?.isNotEmpty == true &&
+          firstColleagueDesignation?.isNotEmpty == true &&
+          secondColleagueName?.isNotEmpty == true &&
+          secondColleagueDesignation?.isNotEmpty == true &&
+          callingResponse != null &&
+          totalFloor != null &&
+          permissiveExistsOnWhichFloor != null &&
+          landArea?.isNotEmpty == true &&
+          localityOfAddress != null &&
+          totalEmployee?.isNotEmpty == true &&
+          seenEmployee?.isNotEmpty == true &&
+          natureOfBusiness?.isNotEmpty == true &&
+          setupAndActivity != null &&
+          nameBoardSeen != null &&
+          otherObservation?.isNotEmpty == true &&
+          image1 != null &&
+          image2 != null &&
+          image3 != null &&
+          image4 != null &&
+          image5 != null &&
+          image6 != null;
+    }
+
+    if (addressTraced == 'yes' && companyExist == 'yes' && entryAllowed == 'yes' && detailSharedByColleague == 'confirmed') {
+
+      return firstColleagueName?.isNotEmpty == true &&
+          firstColleagueDesignation?.isNotEmpty == true &&
+          secondColleagueName?.isNotEmpty == true &&
+          secondColleagueDesignation?.isNotEmpty == true &&
+          metPersonName?.isNotEmpty == true &&
+          metPersonDesignation?.isNotEmpty == true &&
+          applicantDesignation?.isNotEmpty == true &&
+          tenureOfWorkingMonths?.isNotEmpty == true &&
+          tenureOfWorkingYrs?.isNotEmpty == true &&
+          totalFloor != null &&
+          permissiveExistsOnWhichFloor != null &&
+          landArea?.isNotEmpty == true &&
+          localityOfAddress != null &&
+          idCardShown != null &&
+          totalEmployee?.isNotEmpty == true &&
+          seenEmployee?.isNotEmpty == true &&
+          natureOfBusiness?.isNotEmpty == true &&
+          setupAndActivity != null &&
+          nameBoardSeen != null &&
+          otherObservation?.isNotEmpty == true &&
+          image1 != null &&
+          image2 != null &&
+          image3 != null &&
+          image4 != null &&
+          image5 != null &&
+          image6 != null;
+    }
+
+    return false; // Default case
+  }
+
+
   final picker = ImagePicker();
 
+  bool isLoading = false;
+
   Future<void> pickImage(int imageNumber) async {
+    setState(() => isLoading = true);
+
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
     if (pickedFile != null) {
-      setState(() {
-        if (imageNumber == 1) image1 = File(pickedFile.path);
-        if (imageNumber == 2) image2 = File(pickedFile.path);
-        if (imageNumber == 3) image3 = File(pickedFile.path);
-        if (imageNumber == 4) image4 = File(pickedFile.path);
-        if (imageNumber == 5) image5 = File(pickedFile.path);
-        if (imageNumber == 6) image6 = File(pickedFile.path);
+      File? watermarkedImage = await addWatermarkToImage(File(pickedFile.path));
 
-      });
+      if (watermarkedImage != null) {
+        setState(() {
+          if (imageNumber == 1) image1 = watermarkedImage;
+          if (imageNumber == 2) image2 = watermarkedImage;
+          if (imageNumber == 3) image3 = watermarkedImage;
+          if (imageNumber == 4) image4 = watermarkedImage;
+          if (imageNumber == 5) image5 = watermarkedImage;
+          if (imageNumber == 6) image6 = watermarkedImage;
+        });
+      }
     }
+
+    setState(() => isLoading = false);
   }
+
+
+
+
 
   @override
   void initState() {
@@ -134,7 +267,6 @@ Widget addressTracedYes() {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // const Text('Form for YES:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-
         const Text(
           'Company Exist?',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -166,6 +298,19 @@ Widget addressTracedYes() {
               setState(() {
                 companyExist = value;
                 entryAllowed = null; // Reset the nested state
+
+                callingResponse = null;
+                metNeighbourFirst = null;
+                metNeighbourSecond = null;
+                confirmationAboutCompany = null;
+                currentCompanyExists = null;
+                totalFloor = null;
+                permissiveExistsOnWhichFloor = null;
+                landArea = null;
+                localityOfAddress = null;
+                otherObservation = null;
+
+
                 // You can also reset image3 - image6 if you want:
                 image3 = null;
                 image4 = null;
@@ -409,6 +554,10 @@ Widget companyExistYes() {
               setState(() {
                 entryAllowed = value;
                 detailSharedByColleague = null;// Reset the nested state
+                firstColleagueName = null;
+                firstColleagueDesignation = null;
+                secondColleagueName = null;
+                secondColleagueDesignation = null;
                 // You can also reset image3 - image6 if you want:
                 image3 = null;
                 image4 = null;
@@ -427,6 +576,16 @@ Widget companyExistYes() {
               setState(() {
                 entryAllowed = value;
                 detailSharedByColleague = null;// Reset the nested state
+                callingResponse = null;
+                totalFloor = null;
+                permissiveExistsOnWhichFloor = null;
+                landArea = null;
+                localityOfAddress = null;
+                nameBoardSeen = null;
+                metPersonName = null;
+                metPersonDesignation= null;
+                anyConfirmation = null;
+                otherObservation = null;
                 // You can also reset image3 - image6 if you want:
                 image3 = null;
                 image4 = null;
@@ -901,7 +1060,32 @@ Widget companyExistNo() {
           leading: Radio<String>(
             value: 'confirmed',
             groupValue: detailSharedByColleague,
-            onChanged: (value) => setState(() => detailSharedByColleague = value),
+            onChanged: (value) {
+    setState(() {
+    detailSharedByColleague = value; // Reset the nested state
+    metPersonName = null;
+    metPersonDesignation = null;
+    applicantDesignation = null;
+    tenureOfWorkingYrs = null;
+    tenureOfWorkingMonths = null;
+    totalFloor = null;
+    permissiveExistsOnWhichFloor = null;
+    landArea = null;
+    localityOfAddress = null;
+    idCardShown = null;
+    totalEmployee = null;
+    seenEmployee = null;
+    natureOfBusiness = null;
+    setupAndActivity = null;
+    nameBoardSeen = null;
+    otherObservation = null;
+    // You can also reset image3 - image6 if you want:
+    image3 = null;
+    image4 = null;
+    image5 = null;
+    image6 = null;
+    });
+    },
           ),
         ),
         ListTile(
@@ -909,7 +1093,27 @@ Widget companyExistNo() {
           leading: Radio<String>(
             value: 'notConfirmed',
             groupValue: detailSharedByColleague,
-            onChanged: (value) => setState(() => detailSharedByColleague = value),
+            onChanged: (value) {
+              setState(() {
+                detailSharedByColleague = value; // Reset the nested state
+                callingResponse = null;
+                totalFloor = null;
+                permissiveExistsOnWhichFloor = null;
+                landArea = null;
+                localityOfAddress = null;
+                totalEmployee = null;
+                seenEmployee = null;
+                natureOfBusiness = null;
+                setupAndActivity = null;
+                nameBoardSeen = null;
+                otherObservation = null;
+                // You can also reset image3 - image6 if you want:
+                image3 = null;
+                image4 = null;
+                image5 = null;
+                image6 = null;
+              });
+            },
           ),
         ),
         const SizedBox(height: 20),
@@ -2245,7 +2449,13 @@ Widget detailsSharedNo() {
                 onChanged: (value) {
                   setState(() {
                     addressTraced = value;
-                    companyExist = null;// Reset the nested state
+                    companyExist = null; // Reset the nested state
+                    reasonOfUntrace = null;
+                    requiredToTrace = null;
+                    callingResponse = null;
+                    lastLocation = null;
+                    otherObservation = null;
+
                     // You can also reset image3 - image6 if you want:
                     image3 = null;
                     image4 = null;
@@ -2260,62 +2470,68 @@ Widget detailsSharedNo() {
             if (addressTraced == 'no') addressTracedNo(),
             const SizedBox(height: 20),
 
-            ElevatedButton(
-              onPressed: () {
-                final formData = {
-                  'applicantName': widget.applicantName,
-                  'address': widget.address,
-                  'contactNumber': widget.contactNumber,
-                  'taskId': widget.taskId,
-                  'addressTraced': addressTraced,
-                  'metNeighbourFirst': metNeighbourFirst,
-                  'metNeighbourSecond' : metNeighbourSecond,
-                  'companyExist': companyExist,
-                  'entryAllowed': entryAllowed,
-                  'detailSharedByColleague': detailSharedByColleague,
-                  'reasonOfUntrace': reasonOfUntrace,
-                  'requiredToTrace': requiredToTrace,
-                  'callingResponse': callingResponse,
-                  'lastLocation': lastLocation,
-                  'otherObservation': otherObservation,
-                  'confirmationAboutCompany': confirmationAboutCompany,
-                  'currentCompanyExists': currentCompanyExists,
-                  'totalFloor': totalFloor,
-                  'permissiveExistsOnWhichFloor': permissiveExistsOnWhichFloor,
-                  'landArea': landArea,
-                  'localityOfAddress': localityOfAddress,
-                  'nameBoardSeen': nameBoardSeen,
-                  'metPersonName': metPersonName,
-                  'metPersonDesignation': metPersonDesignation,
-                  'anyConfirmation': anyConfirmation,
-                  'firstColleagueName': firstColleagueName,
-                  'firstColleagueDesignation': firstColleagueDesignation,
-                  'secondColleagueName': secondColleagueName,
-                  'secondColleagueDesignation': secondColleagueDesignation,
-                  'totalEmployee': totalEmployee,
-                  'seenEmployee': seenEmployee,
-                  'natureOfBusiness': natureOfBusiness,
-                  'setupAndActivity': setupAndActivity,
-                  'applicantDesignation': applicantDesignation,
-                  'idCardShown': idCardShown,
-                  'tenureOfWorking': tenureOfWorking,
-                  'image1': image1,
-                  'image2': image2,
-                  'image3': image3,
-                  'image4': image4,
-                  'image5': image5,
-                  'image6': image6,
-                };
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SubmitPage(formData: formData),
-                  ),
-                );
-              },
-              child: const Text('Next'),
+            Center(
+              child: ElevatedButton(
+                onPressed: isFormValid
+                    ? () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SubmitPage(
+                        formData: {
+                          'applicantName': widget.applicantName,
+                                'address': widget.address,
+                                'contactNumber': widget.contactNumber,
+                                'taskId': widget.taskId,
+                                'addressTraced': addressTraced,
+                                'metNeighbourFirst': metNeighbourFirst,
+                                'metNeighbourSecond' : metNeighbourSecond,
+                                'companyExist': companyExist,
+                                'entryAllowed': entryAllowed,
+                                'detailSharedByColleague': detailSharedByColleague,
+                                'reasonOfUntrace': reasonOfUntrace,
+                                'requiredToTrace': requiredToTrace,
+                                'callingResponse': callingResponse,
+                                'lastLocation': lastLocation,
+                                'otherObservation': otherObservation,
+                                'confirmationAboutCompany': confirmationAboutCompany,
+                                'currentCompanyExists': currentCompanyExists,
+                                'totalFloor': totalFloor,
+                                'permissiveExistsOnWhichFloor': permissiveExistsOnWhichFloor,
+                                'landArea': landArea,
+                                'localityOfAddress': localityOfAddress,
+                                'nameBoardSeen': nameBoardSeen,
+                                'metPersonName': metPersonName,
+                                'metPersonDesignation': metPersonDesignation,
+                                'anyConfirmation': anyConfirmation,
+                                'firstColleagueName': firstColleagueName,
+                                'firstColleagueDesignation': firstColleagueDesignation,
+                                'secondColleagueName': secondColleagueName,
+                                'secondColleagueDesignation': secondColleagueDesignation,
+                                'totalEmployee': totalEmployee,
+                                'seenEmployee': seenEmployee,
+                                'natureOfBusiness': natureOfBusiness,
+                                'setupAndActivity': setupAndActivity,
+                                'applicantDesignation': applicantDesignation,
+                                'idCardShown': idCardShown,
+                                'tenureOfWorking': tenureOfWorking,
+                                'image1': image1,
+                                'image2': image2,
+                                'image3': image3,
+                                'image4': image4,
+                                'image5': image5,
+                                'image6': image6,
+                          // Add any other values you want to pass...
+                        },
+                      ),
+                    ),
+                  );
+                }
+                    : null, // Button will be disabled if form is invalid
+                child: const Text('Next'),
+              ),
             ),
+
 
           ],
         ),
