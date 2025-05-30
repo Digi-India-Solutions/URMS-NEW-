@@ -66,6 +66,7 @@ class _OfficeProfileState extends State<OfficeProfile> {
   String? tenureOfWorkingYrs;
   String? tenureOfWorkingMonths;
   String? tenureOfWorking;
+  String? otherReasonTemp;
 
   // String get tenureOfWorking =>
   //     '${tenureOfWorkingYrs ?? "0"} years and ${tenureOfWorkingMonths ?? "0"} months';
