@@ -74,11 +74,38 @@ class _OfficeProfileState extends State<OfficeProfile> {
 
   // Shared image files for both YES and NO form
   File? image1;
+  DateTime? image1Timestamp;
+  String? image1LatLong;
+
   File? image2;
+  DateTime? image2Timestamp;
+  String? image2LatLong;
+
   File? image3;
+  DateTime? image3Timestamp;
+  String? image3LatLong;
+
   File? image4;
+  DateTime? image4Timestamp;
+  String? image4LatLong;
+
   File? image5;
+  DateTime? image5Timestamp;
+  String? image5LatLong;
+
   File? image6;
+  DateTime? image6Timestamp;
+  String? image6LatLong;
+
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   // Safely initialize using other nullable fields here
+  //   tenureOfWorking =
+  //   '${tenureOfWorkingYrs} years and ${tenureOfWorkingMonths} months';
+  // }
 
 
   bool get isFormValid {
@@ -200,31 +227,113 @@ class _OfficeProfileState extends State<OfficeProfile> {
 
   bool isLoading = false;
 
+  // Future<void> pickImage(int imageNumber) async {
+  //   setState(() => isLoading = true);
+  //
+  //   final pickedFile = await picker.pickImage(source: ImageSource.camera);
+  //
+  //   if (pickedFile != null) {
+  //     File? watermarkedImage = await addWatermarkToImage(File(pickedFile.path));
+  //
+  //     if (watermarkedImage != null) {
+  //       setState(() {
+  //         if (imageNumber == 1) image1 = watermarkedImage;
+  //         if (imageNumber == 2) image2 = watermarkedImage;
+  //         if (imageNumber == 3) image3 = watermarkedImage;
+  //         if (imageNumber == 4) image4 = watermarkedImage;
+  //         if (imageNumber == 5) image5 = watermarkedImage;
+  //         if (imageNumber == 6) image6 = watermarkedImage;
+  //       });
+  //     }
+  //   }
+  //
+  //   setState(() => isLoading = false);
+  // }
+
+
+  // Future<void> pickImage(int imageNumber) async {
+  //   setState(() => isLoading = true);
+  //
+  //   final pickedFile = await picker.pickImage(source: ImageSource.camera);
+  //
+  //   if (pickedFile != null) {
+  //     final imageFile = File(pickedFile.path);
+  //
+  //     setState(() {
+  //       if (imageNumber == 1) image1 = imageFile;
+  //       if (imageNumber == 2) image2 = imageFile;
+  //       if (imageNumber == 3) image3 = imageFile;
+  //       if (imageNumber == 4) image4 = imageFile;
+  //       if (imageNumber == 5) image5 = imageFile;
+  //       if (imageNumber == 6) image6 = imageFile;
+  //     });
+  //   }
+  //
+  //   setState(() => isLoading = false);
+  // }
+
+
   Future<void> pickImage(int imageNumber) async {
     setState(() => isLoading = true);
 
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
     if (pickedFile != null) {
-      File? watermarkedImage = await addWatermarkToImage(File(pickedFile.path));
+      final imageFile = File(pickedFile.path);
 
-      if (watermarkedImage != null) {
-        setState(() {
-          if (imageNumber == 1) image1 = watermarkedImage;
-          if (imageNumber == 2) image2 = watermarkedImage;
-          if (imageNumber == 3) image3 = watermarkedImage;
-          if (imageNumber == 4) image4 = watermarkedImage;
-          if (imageNumber == 5) image5 = watermarkedImage;
-          if (imageNumber == 6) image6 = watermarkedImage;
-        });
+      // Compress image using your addWatermarkToImage function (which now just resizes)
+      final compressedFile = await addWatermarkToImage(imageFile);
+
+      DateTime now = DateTime.now();
+
+      String latLong = 'Unknown location';
+      try {
+        Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
+        latLong = '${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)}';
+      } catch (e) {
+        latLong = 'Location unavailable';
       }
+
+      setState(() {
+        switch (imageNumber) {
+          case 1:
+            image1 = compressedFile ?? imageFile;  // fallback to original if compression failed
+            image1Timestamp = now;
+            image1LatLong = latLong;
+            break;
+          case 2:
+            image2 = compressedFile ?? imageFile;
+            image2Timestamp = now;
+            image2LatLong = latLong;
+            break;
+          case 3:
+            image3 = compressedFile ?? imageFile;
+            image3Timestamp = now;
+            image3LatLong = latLong;
+            break;
+          case 4:
+            image4 = compressedFile ?? imageFile;
+            image4Timestamp = now;
+            image4LatLong = latLong;
+            break;
+          case 5:
+            image5 = compressedFile ?? imageFile;
+            image5Timestamp = now;
+            image5LatLong = latLong;
+            break;
+          case 6:
+            image6 = compressedFile ?? imageFile;
+            image6Timestamp = now;
+            image6LatLong = latLong;
+            break;
+        }
+        isLoading = false;
+      });
+    } else {
+      setState(() => isLoading = false);
     }
-
-    setState(() => isLoading = false);
   }
-
-
-
 
 
   @override
@@ -237,33 +346,75 @@ class _OfficeProfileState extends State<OfficeProfile> {
   }
 
 
-  Widget imagePickerBlock(int imageNumber, File? imageFile) {
+  // Widget imagePickerBlock(int imageNumber, File? imageFile) {
+  //   return GestureDetector(
+  //     onTap: () => pickImage(imageNumber),
+  //     child: Container(
+  //       height: 150,
+  //       width: 150,
+  //       decoration: BoxDecoration(
+  //         border: Border.all(color: Colors.grey),
+  //         borderRadius: BorderRadius.circular(8),
+  //       ),
+  //       child: imageFile != null
+  //           ? Image.file(imageFile, fit: BoxFit.cover)
+  //           : Center(
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: const [
+  //             Icon(Icons.camera_alt, size: 50, color: Colors.grey),
+  //             SizedBox(height: 8),
+  //             Text('Capture Image'),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  Widget imagePickerBlock(int imageNumber, File? imageFile, DateTime? timestamp, String? latLong) {
     return GestureDetector(
       onTap: () => pickImage(imageNumber),
-      child: Container(
-        height: 150,
-        width: 150,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: imageFile != null
-            ? Image.file(imageFile, fit: BoxFit.cover)
-            : Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Icon(Icons.camera_alt, size: 50, color: Colors.grey),
-              SizedBox(height: 8),
-              Text('Capture Image'),
-            ],
+      child: Column(
+        children: [
+          Container(
+            height: 150,
+            width: 150,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: imageFile != null
+                ? Image.file(imageFile, fit: BoxFit.cover)
+                : Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.camera_alt, size: 50, color: Colors.grey),
+                  SizedBox(height: 8),
+                  Text('Capture Image'),
+                ],
+              ),
+            ),
           ),
-        ),
+          const SizedBox(height: 4),
+          if (timestamp != null && latLong != null)
+            Text(
+              'Time:${timestamp.toLocal().toString().split('.')[0]}\n'
+                  'Location: $latLong',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 10, color: Colors.black54),
+            )
+          else
+            const SizedBox(height: 40),
+        ],
       ),
     );
   }
 
-Widget addressTracedYes() {
+
+
+  Widget addressTracedYes() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -519,16 +670,16 @@ Widget addressTracedNo() {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(3, image3),
-            imagePickerBlock(4, image4),
+            imagePickerBlock(3, image3, image3Timestamp, image3LatLong),
+            imagePickerBlock(4, image4, image4Timestamp, image4LatLong),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(5, image5),
-            imagePickerBlock(6, image6),
+            imagePickerBlock(5, image5, image5Timestamp, image5LatLong),
+            imagePickerBlock(6, image6, image6Timestamp, image6LatLong),
           ],
         ),
       ],
@@ -972,16 +1123,16 @@ Widget companyExistNo() {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(3, image3),
-            imagePickerBlock(4, image4),
+            imagePickerBlock(3, image3, image1Timestamp, image1LatLong),
+            imagePickerBlock(4, image4, image4Timestamp, image4LatLong),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(5, image5),
-            imagePickerBlock(6, image6),
+            imagePickerBlock(5, image5, image5Timestamp, image5LatLong),
+            imagePickerBlock(6, image6, image6Timestamp, image6LatLong),
           ],
         ),
       ],
@@ -1490,16 +1641,16 @@ Widget entryAllowedNo() {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(3, image3),
-            imagePickerBlock(4, image4),
+            imagePickerBlock(3, image3, image1Timestamp, image1LatLong),
+            imagePickerBlock(4, image4, image4Timestamp, image4LatLong),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(5, image5),
-            imagePickerBlock(6, image6),
+            imagePickerBlock(5, image5, image5Timestamp, image5LatLong),
+            imagePickerBlock(6, image6, image6Timestamp, image6LatLong),
           ],
         ),
       ],
@@ -1576,6 +1727,10 @@ Widget entryAllowedNo() {
             });
           },
         ),
+
+        Text("${tenureOfWorking}", style: const TextStyle(fontWeight: FontWeight.bold)),
+
+
         const SizedBox(height: 20),
 
         const Text('Total Floor?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
@@ -1965,16 +2120,16 @@ Widget entryAllowedNo() {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(3, image3),
-            imagePickerBlock(4, image4),
+            imagePickerBlock(3, image3, image1Timestamp, image1LatLong),
+            imagePickerBlock(4, image4, image4Timestamp, image4LatLong),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(5, image5),
-            imagePickerBlock(6, image6),
+            imagePickerBlock(5, image5, image5Timestamp, image5LatLong),
+            imagePickerBlock(6, image6, image6Timestamp, image6LatLong),
           ],
         ),
         const SizedBox(height: 12),
@@ -2383,16 +2538,16 @@ Widget detailsSharedNo() {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(3, image3),
-            imagePickerBlock(4, image4),
+            imagePickerBlock(3, image3, image1Timestamp, image1LatLong),
+            imagePickerBlock(4, image4, image4Timestamp, image4LatLong),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(5, image5),
-            imagePickerBlock(6, image6),
+            imagePickerBlock(5, image5, image5Timestamp, image5LatLong),
+            imagePickerBlock(6, image6, image6Timestamp, image6LatLong),
           ],
         ),
       ],
@@ -2416,8 +2571,8 @@ Widget detailsSharedNo() {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                imagePickerBlock(1, image1),
-                imagePickerBlock(2, image2),
+                imagePickerBlock(1, image1, image1Timestamp, image1LatLong),
+                imagePickerBlock(2, image2, image2Timestamp, image2LatLong),
               ],
             ),
             const Text(
@@ -2532,6 +2687,8 @@ Widget detailsSharedNo() {
                 child: const Text('Next'),
               ),
             ),
+
+            SizedBox(height: 50,),
 
 
           ],

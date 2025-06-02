@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../officeRecords/offileProfile.dart';
 import '../services/api_services.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,6 +23,24 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     fetchTasks();
+    requestPermissions();
+  }
+
+  Future<void> requestPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.locationWhenInUse,
+      Permission.storage,
+    ].request();
+
+    // Optional: handle each permission result
+    statuses.forEach((permission, status) {
+      if (status.isDenied) {
+        print('$permission denied');
+      }
+    });
+
+    // Navigate or proceed once permissions are handled
   }
 
   Future<void> fetchTasks() async {
@@ -92,27 +112,78 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  (status.toLowerCase() == 'draft')
+                      ? Text(
+                    'Under Verification',
+                    style: const TextStyle(fontSize: 16, color: Colors.blue),
+                  )
+                      : (status.toLowerCase() == 'pending')
+                      ? Text(
                     status,
                     style: const TextStyle(fontSize: 16, color: Colors.blue),
+                  )
+                      : Text(
+                    'Draft',
+                    style: const TextStyle(fontSize: 16, color: Colors.red),
                   ),
-                  if (status.toLowerCase() != 'complete')
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => OfficeProfile(
-                              applicantName: task['applicantName'] ?? 'N/A',
-                              address: task['address'] ?? 'N/A',
-                              contactNumber: task['contactNumber'] ?? 'N/A',
-                              taskId: task['_id'] ?? 'N/A',
-                            ),
-                          ),
-                        );
-                      },
-                      child: const Text("Start Now"),
-                    ),
+
+                  // if (status.toLowerCase() != 'draft')
+                  //   ElevatedButton(
+                  //     onPressed: () {
+                  //       Navigator.push(
+                  //         context,
+                  //         MaterialPageRoute(
+                  //           builder: (_) =>
+                  //               OfficeProfile(
+                  //                 applicantName: task['applicantName'] ?? 'N/A',
+                  //                 address: task['address'] ?? 'N/A',
+                  //                 contactNumber: task['contactNumber'] ?? 'N/A',
+                  //                 taskId: task['_id'] ?? 'N/A',
+                  //               ),
+                  //         ),
+                  //       );
+                  //     },
+                  //     child: const Text("Start Now"),
+                  //   ),
+
+                  (status.toLowerCase() == 'pending')
+                      ? ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              OfficeProfile(
+                                applicantName: task['applicantName'] ?? 'N/A',
+                                address: task['address'] ?? 'N/A',
+                                contactNumber: task['contactNumber'] ?? 'N/A',
+                                taskId: task['_id'] ?? 'N/A',
+                              ),
+                        ),
+                      );
+                    },
+                    child: const Text("Start Now"),
+                  )
+                      : (status.toLowerCase() == 'draft')
+          ? SizedBox(width: 10,)
+                      : ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              OfficeProfile(
+                                applicantName: task['applicantName'] ?? 'N/A',
+                                address: task['address'] ?? 'N/A',
+                                contactNumber: task['contactNumber'] ?? 'N/A',
+                                taskId: task['_id'] ?? 'N/A',
+                              ),
+                        ),
+                      );
+                    },
+                    child: const Text("Sync"),
+                  ),
+
                 ],
               ),
             ],
@@ -162,9 +233,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             child: TabBarView(
               controller: _tabController,
               children: [
-                ListView(children: buildTaskCards('complete')),
-                ListView(children: buildTaskCards('pending')),
                 ListView(children: buildTaskCards('draft')),
+                ListView(children: buildTaskCards('pending')),
+                ListView(children: buildTaskCards('')),
               ],
             ),
           ),
@@ -172,16 +243,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ),
       bottomNavigationBar: Container(
         color: Colors.deepPurple,
-        child: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.grey[400],
-          tabs: const [
-            Tab(icon: Icon(Icons.check), text: 'Under Verification'),
-            Tab(icon: Icon(Icons.access_time), text: 'Pending'),
-            Tab(icon: Icon(Icons.drafts), text: 'Draft'),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 50),
+          child: TabBar(
+            controller: _tabController,
+            indicatorColor: Colors.white,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.grey[400],
+            tabs: const [
+              Tab(icon: Icon(Icons.check), text: 'Under Verification'),
+              Tab(icon: Icon(Icons.access_time), text: 'Pending'),
+              Tab(icon: Icon(Icons.drafts), text: 'Draft'),
+            ],
+          ),
         ),
       ),
     );
@@ -193,3 +267,5 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 }
+
+

@@ -7,94 +7,137 @@ import 'package:flutter/cupertino.dart' as ui;
 import 'package:image/image.dart' as img;
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+//
+// Future<File?> addWatermarkToImage(File originalImageFile) async {
+//   try {
+//     // ✅ Handle location permission
+//     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+//     if (!serviceEnabled) {
+//       throw Exception('Location services are disabled.');
+//     }
+//
+//     LocationPermission permission = await Geolocator.checkPermission();
+//     if (permission == LocationPermission.denied) {
+//       permission = await Geolocator.requestPermission();
+//       if (permission == LocationPermission.denied) {
+//         throw Exception('Location permissions are denied.');
+//       }
+//     }
+//
+//     if (permission == LocationPermission.deniedForever) {
+//       throw Exception('Location permissions are permanently denied.');
+//     }
+//
+//     // Load image bytes
+//     final Uint8List imageBytes = await originalImageFile.readAsBytes();
+//     final img.Image? originalImg = img.decodeImage(imageBytes);
+//     if (originalImg == null) throw Exception('Image decoding failed.');
+//
+//     // Get current location
+//     final position = await Geolocator.getCurrentPosition();
+//     final lat = position.latitude.toStringAsFixed(5);
+//     final lon = position.longitude.toStringAsFixed(5);
+//
+//     // Get current time
+//     final now = DateTime.now();
+//     final formattedDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+//
+//     // Create a new image canvas
+//     final ui.PictureRecorder recorder = ui.PictureRecorder();
+//     final canvas = ui.Canvas(recorder);
+//     final paint = ui.Paint();
+//
+//     final uiImage = await decodeImageFromList(imageBytes);
+//     final size = ui.Size(uiImage.width.toDouble(), uiImage.height.toDouble());
+//
+//     // Draw original image
+//     canvas.drawImage(uiImage, Offset.zero, paint);
+//
+//     // Prepare watermark text
+//     final text = 'Time: $formattedDateTime\nLat: $lat, Lon: $lon';
+//     final textSpan = ui.TextSpan(
+//       text: text,
+//       style: ui.TextStyle(
+//         color: const ui.Color(0xFFFFFFFF),
+//         fontSize: 60, // Adjusted for larger text (~14px+)
+//         background: Paint()..color = const ui.Color(0x80000000),
+//       ),
+//     );
+//
+//     final textPainter = ui.TextPainter(
+//       text: textSpan,
+//       textAlign: TextAlign.center,
+//       textDirection: ui.TextDirection.ltr,
+//     );
+//
+//     textPainter.layout(
+//       minWidth: 0,
+//       maxWidth: size.width - 20,
+//     );
+//
+//     // Center horizontally, and move vertically below center (~60px down)
+//     final offsetX = (size.width - textPainter.width) / 2;
+//     // final offsetY = (size.height - textPainter.height) / 2 + 100;
+//     final offsetY = size.height * 0.7;
+//
+//
+//     textPainter.paint(canvas, Offset(offsetX, offsetY));
+//
+//     // Complete drawing
+//     final picture = recorder.endRecording();
+//     final uiImageWithWatermark = await picture.toImage(uiImage.width, uiImage.height);
+//     final byteData = await uiImageWithWatermark.toByteData(format: ui.ImageByteFormat.png);
+//     if (byteData == null) throw Exception("ByteData conversion failed");
+//
+//     // Save to file
+//     final outputBytes = byteData.buffer.asUint8List();
+//     final outputDir = await getTemporaryDirectory();
+//     final outputPath = '${outputDir.path}/watermarked_${DateTime.now().millisecondsSinceEpoch}.png';
+//     final outputFile = File(outputPath);
+//     await outputFile.writeAsBytes(outputBytes);
+//
+//     return outputFile;
+//   } catch (e) {
+//     print("Error: $e");
+//     return null;
+//   }
+// }
+//
+//
+//
+//
+//
+//
+
+
+
+
+
 
 Future<File?> addWatermarkToImage(File originalImageFile) async {
   try {
-    // ✅ Handle location permission
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      throw Exception('Location services are disabled.');
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        throw Exception('Location permissions are denied.');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      throw Exception('Location permissions are permanently denied.');
-    }
-
     // Load image bytes
     final Uint8List imageBytes = await originalImageFile.readAsBytes();
     final img.Image? originalImg = img.decodeImage(imageBytes);
     if (originalImg == null) throw Exception('Image decoding failed.');
 
-    // Get current location
-    final position = await Geolocator.getCurrentPosition();
-    final lat = position.latitude.toStringAsFixed(5);
-    final lon = position.longitude.toStringAsFixed(5);
+    // Resize image for compression (e.g., max width or height = 800px)
+    final int maxDimension = 800;
+    img.Image resizedImg;
+    if (originalImg.width > originalImg.height) {
+      resizedImg = img.copyResize(originalImg, width: maxDimension);
+    } else {
+      resizedImg = img.copyResize(originalImg, height: maxDimension);
+    }
 
-    // Get current time
-    final now = DateTime.now();
-    final formattedDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-
-    // Create a new image canvas
-    final ui.PictureRecorder recorder = ui.PictureRecorder();
-    final canvas = ui.Canvas(recorder);
-    final paint = ui.Paint();
-
-    final uiImage = await decodeImageFromList(imageBytes);
-    final size = ui.Size(uiImage.width.toDouble(), uiImage.height.toDouble());
-
-    // Draw original image
-    canvas.drawImage(uiImage, Offset.zero, paint);
-
-    // Prepare watermark text
-    final text = 'Time: $formattedDateTime\nLat: $lat, Lon: $lon';
-    final textSpan = ui.TextSpan(
-      text: text,
-      style: ui.TextStyle(
-        color: const ui.Color(0xFFFFFFFF),
-        fontSize: 60, // Adjusted for larger text (~14px+)
-        background: Paint()..color = const ui.Color(0x80000000),
-      ),
-    );
-
-    final textPainter = ui.TextPainter(
-      text: textSpan,
-      textAlign: TextAlign.center,
-      textDirection: ui.TextDirection.ltr,
-    );
-
-    textPainter.layout(
-      minWidth: 0,
-      maxWidth: size.width - 20,
-    );
-
-    // Center horizontally, and move vertically below center (~60px down)
-    final offsetX = (size.width - textPainter.width) / 2;
-    // final offsetY = (size.height - textPainter.height) / 2 + 100;
-    final offsetY = size.height * 0.7;
-
-
-    textPainter.paint(canvas, Offset(offsetX, offsetY));
-
-    // Complete drawing
-    final picture = recorder.endRecording();
-    final uiImageWithWatermark = await picture.toImage(uiImage.width, uiImage.height);
-    final byteData = await uiImageWithWatermark.toByteData(format: ui.ImageByteFormat.png);
-    if (byteData == null) throw Exception("ByteData conversion failed");
+    // Encode resized image to PNG
+    final List<int> compressedBytes = img.encodePng(resizedImg);
 
     // Save to file
-    final outputBytes = byteData.buffer.asUint8List();
     final outputDir = await getTemporaryDirectory();
-    final outputPath = '${outputDir.path}/watermarked_${DateTime.now().millisecondsSinceEpoch}.png';
+    final outputPath = '${outputDir.path}/compressed_${DateTime.now().millisecondsSinceEpoch}.png';
     final outputFile = File(outputPath);
-    await outputFile.writeAsBytes(outputBytes);
+    await outputFile.writeAsBytes(compressedBytes);
 
     return outputFile;
   } catch (e) {
@@ -102,3 +145,274 @@ Future<File?> addWatermarkToImage(File originalImageFile) async {
     return null;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import 'dart:io';
+// import 'dart:typed_data';
+// import 'dart:ui' as ui;
+// import 'package:flutter/cupertino.dart';
+// import 'package:flutter/cupertino.dart' as ui;
+// import 'package:flutter/material.dart';
+// import 'package:geolocator/geolocator.dart';
+// import 'package:image/image.dart' as img;
+// import 'package:intl/intl.dart';
+// import 'package:path_provider/path_provider.dart';
+//
+// Future<File?> addWatermarkToImage(File originalImageFile) async {
+//   try {
+//     // ✅ Handle location permission
+//     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+//     if (!serviceEnabled) {
+//       throw Exception('Location services are disabled.');
+//     }
+//
+//     LocationPermission permission = await Geolocator.checkPermission();
+//     if (permission == LocationPermission.denied) {
+//       permission = await Geolocator.requestPermission();
+//       if (permission == LocationPermission.denied) {
+//         throw Exception('Location permissions are denied.');
+//       }
+//     }
+//
+//     if (permission == LocationPermission.deniedForever) {
+//       throw Exception('Location permissions are permanently denied.');
+//     }
+//
+//     // Load image bytes
+//     final Uint8List imageBytes = await originalImageFile.readAsBytes();
+//     final img.Image? originalImg = img.decodeImage(imageBytes);
+//     if (originalImg == null) throw Exception('Image decoding failed.');
+//
+//     // Get current location
+//     final position = await Geolocator.getCurrentPosition();
+//     final lat = position.latitude.toStringAsFixed(5);
+//     final lon = position.longitude.toStringAsFixed(5);
+//
+//     // Get current time
+//     final now = DateTime.now();
+//     final formattedDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+//
+//     // Create a new image canvas using Flutter's ui to draw watermark
+//     final ui.PictureRecorder recorder = ui.PictureRecorder();
+//     final canvas = ui.Canvas(recorder);
+//     final paint = ui.Paint();
+//
+//     final uiImage = await decodeImageFromList(imageBytes);
+//     final size = ui.Size(uiImage.width.toDouble(), uiImage.height.toDouble());
+//
+//     // Draw original image
+//     canvas.drawImage(uiImage, Offset.zero, paint);
+//
+//     // Prepare watermark text
+//     final text = 'Time: $formattedDateTime\nLat: $lat, Lon: $lon';
+//     final textSpan = ui.TextSpan(
+//       text: text,
+//       style: ui.TextStyle(
+//         color: const ui.Color(0xFFFFFFFF),
+//         fontSize: 60,
+//         background: Paint()..color = const ui.Color(0x80000000),
+//       ),
+//     );
+//
+//     final textPainter = ui.TextPainter(
+//       text: textSpan,
+//       textAlign: TextAlign.center,
+//       textDirection: ui.TextDirection.ltr,
+//     );
+//
+//     textPainter.layout(
+//       minWidth: 0,
+//       maxWidth: size.width - 20,
+//     );
+//
+//     final offsetX = (size.width - textPainter.width) / 2;
+//     final offsetY = size.height * 0.7;
+//
+//     textPainter.paint(canvas, Offset(offsetX, offsetY));
+//
+//     // Complete drawing
+//     final picture = recorder.endRecording();
+//     final uiImageWithWatermark = await picture.toImage(uiImage.width, uiImage.height);
+//     final byteData = await uiImageWithWatermark.toByteData(format: ui.ImageByteFormat.png);
+//     if (byteData == null) throw Exception("ByteData conversion failed");
+//
+//     // Decode image to package 'image' for compression
+//     final img.Image? imageForCompression = img.decodeImage(byteData.buffer.asUint8List());
+//     if (imageForCompression == null) throw Exception("Image re-decoding failed");
+//
+//     int quality = 90;
+//     List<int> compressedBytes = [];
+//
+//     // Compress repeatedly until under 1MB or quality is too low
+//     while (true) {
+//       compressedBytes = img.encodeJpg(imageForCompression, quality: quality);
+//       final sizeInKB = compressedBytes.length / 1024;
+//       if (sizeInKB < 1024 || quality <= 30) {
+//         break;
+//       }
+//       quality -= 10; // decrease quality by 10%
+//     }
+//
+//     // Save to file
+//     final outputDir = await getTemporaryDirectory();
+//     final outputPath = '${outputDir.path}/watermarked_${DateTime.now().millisecondsSinceEpoch}.jpg';
+//     final outputFile = File(outputPath);
+//     await outputFile.writeAsBytes(compressedBytes);
+//
+//     return outputFile;
+//   } catch (e) {
+//     print("Error: $e");
+//     return null;
+//   }
+// }
+
+
+
+
+
+
+
+// import 'dart:io';
+// import 'package:flutter/cupertino.dart' as ui;
+// import 'dart:typed_data';
+// import 'dart:ui' as ui;
+// import 'package:flutter/cupertino.dart';
+// import 'package:flutter/material.dart';
+// import 'package:geolocator/geolocator.dart';
+// import 'package:image/image.dart' as img;
+// import 'package:intl/intl.dart';
+// import 'package:path_provider/path_provider.dart';
+//
+// Future<File?> addWatermarkToImage(File originalImageFile) async {
+//   try {
+//     // Handle location permission
+//     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+//     if (!serviceEnabled) {
+//       throw Exception('Location services are disabled.');
+//     }
+//
+//     LocationPermission permission = await Geolocator.checkPermission();
+//     if (permission == LocationPermission.denied) {
+//       permission = await Geolocator.requestPermission();
+//       if (permission == LocationPermission.denied) {
+//         throw Exception('Location permissions are denied.');
+//       }
+//     }
+//
+//     if (permission == LocationPermission.deniedForever) {
+//       throw Exception('Location permissions are permanently denied.');
+//     }
+//
+//     // Load image bytes
+//     final Uint8List imageBytes = await originalImageFile.readAsBytes();
+//     final img.Image? originalImg = img.decodeImage(imageBytes);
+//     if (originalImg == null) throw Exception('Image decoding failed.');
+//
+//     // Get current location
+//     final position = await Geolocator.getCurrentPosition();
+//     final lat = position.latitude.toStringAsFixed(5);
+//     final lon = position.longitude.toStringAsFixed(5);
+//
+//     // Get current time
+//     final now = DateTime.now();
+//     final formattedDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+//
+//     // Draw watermark on image using Flutter's ui library
+//     final ui.PictureRecorder recorder = ui.PictureRecorder();
+//     final canvas = ui.Canvas(recorder);
+//     final paint = ui.Paint();
+//
+//     // Decode original image as ui.Image
+//     final uiImage = await decodeImageFromList(imageBytes);
+//     final size = ui.Size(uiImage.width.toDouble(), uiImage.height.toDouble());
+//
+//     // Draw original image
+//     canvas.drawImage(uiImage, Offset.zero, paint);
+//
+//     // Prepare watermark text
+//     final text = 'Time: $formattedDateTime\nLat: $lat, Lon: $lon';
+//     final textSpan = ui.TextSpan(
+//       text: text,
+//       style: ui.TextStyle(
+//         color: const ui.Color(0xFFFFFFFF),
+//         fontSize: 60,
+//         background: Paint()..color = const ui.Color(0x80000000),
+//       ),
+//     );
+//
+//     final textPainter = ui.TextPainter(
+//       text: textSpan,
+//       textAlign: TextAlign.center,
+//       textDirection: ui.TextDirection.ltr,
+//     );
+//
+//     textPainter.layout(
+//       minWidth: 0,
+//       maxWidth: size.width - 20,
+//     );
+//
+//     final offsetX = (size.width - textPainter.width) / 2;
+//     final offsetY = size.height * 0.7;
+//
+//     textPainter.paint(canvas, Offset(offsetX, offsetY));
+//
+//     // Complete drawing
+//     final picture = recorder.endRecording();
+//     final uiImageWithWatermark = await picture.toImage(uiImage.width, uiImage.height);
+//     final byteData = await uiImageWithWatermark.toByteData(format: ui.ImageByteFormat.png);
+//     if (byteData == null) throw Exception("ByteData conversion failed");
+//
+//     // Decode image to 'image' package format for resizing/compression
+//     img.Image? imageForProcessing = img.decodeImage(byteData.buffer.asUint8List());
+//     if (imageForProcessing == null) throw Exception("Image re-decoding failed");
+//
+//     // Resize image if larger than max dimensions (e.g. max 1080px width or height)
+//     const int maxDimension = 1080;
+//     if (imageForProcessing.width > maxDimension || imageForProcessing.height > maxDimension) {
+//       imageForProcessing = img.copyResize(imageForProcessing,
+//           width: imageForProcessing.width > imageForProcessing.height ? maxDimension : null,
+//           height: imageForProcessing.height >= imageForProcessing.width ? maxDimension : null);
+//     }
+//
+//     int quality = 90;
+//     List<int> compressedBytes = [];
+//
+//     // Compress until under 100KB or quality limit
+//     while (true) {
+//       compressedBytes = img.encodeJpg(imageForProcessing, quality: quality);
+//       final sizeInKB = compressedBytes.length / 1024;
+//       if (sizeInKB < 100 || quality <= 30) {
+//         break;
+//       }
+//       quality -= 5;
+//     }
+//
+//     // Save compressed file
+//     final outputDir = await getTemporaryDirectory();
+//     final outputPath = '${outputDir.path}/watermarked_${DateTime.now().millisecondsSinceEpoch}.jpg';
+//     final outputFile = File(outputPath);
+//     await outputFile.writeAsBytes(compressedBytes);
+//
+//     return outputFile;
+//   } catch (e) {
+//     print("Error: $e");
+//     return null;
+//   }
+// }

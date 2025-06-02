@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 
+import '../screens/homePage.dart';
+
 class SubmitPage extends StatefulWidget {
   final Map<String, dynamic> formData;
 
@@ -30,7 +32,7 @@ class _SubmitPageState extends State<SubmitPage> {
     final detailSharedByColleague = data['detailSharedByColleague']?.toLowerCase();
 
     if (addressTraced == 'no') {
-      return "Visited at given address (${data['address']}) we found that address was difficult to trace due to ${data['reasonOfUntrace']} and ${data['requiredToTrace']}, so we made a call to applicant but at visit time applicant ${data['callingResponse']}. We also met with some local person in same locality but they are not able to guide the address. Our last visit is ${data['lastLocation']}\n(Other Observation: ${data['taskId']})";
+      return "Visited at given address (${data['address']}) we found that address was difficult to trace due to ${data['reasonOfUntrace']} and ${data['requiredToTrace']}, so we made a call to applicant but at visit time applicant ${data['callingResponse']}. We also met with some local person in same locality but they are not able to guide the address. Our last visit is ${data['lastLocation']}\n(Other Observation: ${data['otherObservation']})";
     } else if (addressTraced == 'yes' && companyExist == 'no') {
       return "Visited at given address (${data['address']}) found that address was trace then we met with neighbor ${data['metNeighbourFirst']} and ${data['metNeighbourSecond']} both are confirmed that company not exist at given address. Currently ${data['currentCompanyExists']} exist at given address. Then we call to applicant ${data['callingResponse']}. Building built from ${data['totalFloor']} and office exist at ${data['permissiveExistsOnWhichFloor']} with an area approx. ${data['landArea']} Sq. Feet in Locality of ${data['localityOfAddress']}.\n(Other Observation: ${data['otherObservation']})";
     } else if (addressTraced == 'yes' && companyExist == 'yes' && entryAllowed == 'no') {
@@ -128,11 +130,46 @@ class _SubmitPageState extends State<SubmitPage> {
       }
 
       var response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      // DEBUG: Print fields
+      print("Sending fields:");
+      request.fields.forEach((key, value) => print("$key: $value"));
+
+      // DEBUG: Print files
+      print("Sending files:");
+      for (var file in request.files) {
+        print("${file.field} -> ${file.filename} (${file.length}) bytes");
+      }
+
+
+
+      print("Status Code: ${response.statusCode}");
+      print("Response Body: $responseBody");
+
+
+
 
       if (response.statusCode == 200) {
         setState(() {
           submissionResult = 'Submitted successfully!';
         });
+
+
+        // Wait a moment for the UI to show the message (optional)
+        await Future.delayed(Duration(milliseconds: 300));
+
+        // Navigate to SuccessPage
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
+            settings: RouteSettings(arguments: 'Submission successful'),
+          ),
+              (Route<dynamic> route) => false, // This clears the entire back stack
+        );
+
+
+
       } else {
         setState(() {
           submissionResult = 'Submission failed. Code: ${response.statusCode}';
@@ -195,9 +232,10 @@ class _SubmitPageState extends State<SubmitPage> {
                 onPressed: isSubmitting ? null : submitData,
                 child: isSubmitting
                     ? const CircularProgressIndicator()
-                    : const Text('Submit to API'),
+                    : const Text('Submit'),
               ),
             ),
+            SizedBox(height: 50,),
             if (submissionResult != null)
               Padding(
                 padding: const EdgeInsets.only(top: 20),
@@ -211,9 +249,13 @@ class _SubmitPageState extends State<SubmitPage> {
                   ),
                 ),
               ),
+            SizedBox(height: 50,),
+
           ],
         ),
       ),
     );
   }
 }
+
+
