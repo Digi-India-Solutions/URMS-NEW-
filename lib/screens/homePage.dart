@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 3, vsync: this); // 🔁 add this
     fetchTasks();
     requestPermissions();
   }
@@ -235,7 +235,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               children: [
                 ListView(children: buildTaskCards('draft')),
                 ListView(children: buildTaskCards('pending')),
-                ListView(children: buildTaskCards('')),
+                Center(
+                  child: Text(
+                    "No offline drafts available.",
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
               ],
             ),
           ),
@@ -267,5 +272,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 }
+
+
+
 
 

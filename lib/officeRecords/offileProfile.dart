@@ -227,52 +227,6 @@ class _OfficeProfileState extends State<OfficeProfile> {
 
   bool isLoading = false;
 
-  // Future<void> pickImage(int imageNumber) async {
-  //   setState(() => isLoading = true);
-  //
-  //   final pickedFile = await picker.pickImage(source: ImageSource.camera);
-  //
-  //   if (pickedFile != null) {
-  //     File? watermarkedImage = await addWatermarkToImage(File(pickedFile.path));
-  //
-  //     if (watermarkedImage != null) {
-  //       setState(() {
-  //         if (imageNumber == 1) image1 = watermarkedImage;
-  //         if (imageNumber == 2) image2 = watermarkedImage;
-  //         if (imageNumber == 3) image3 = watermarkedImage;
-  //         if (imageNumber == 4) image4 = watermarkedImage;
-  //         if (imageNumber == 5) image5 = watermarkedImage;
-  //         if (imageNumber == 6) image6 = watermarkedImage;
-  //       });
-  //     }
-  //   }
-  //
-  //   setState(() => isLoading = false);
-  // }
-
-
-  // Future<void> pickImage(int imageNumber) async {
-  //   setState(() => isLoading = true);
-  //
-  //   final pickedFile = await picker.pickImage(source: ImageSource.camera);
-  //
-  //   if (pickedFile != null) {
-  //     final imageFile = File(pickedFile.path);
-  //
-  //     setState(() {
-  //       if (imageNumber == 1) image1 = imageFile;
-  //       if (imageNumber == 2) image2 = imageFile;
-  //       if (imageNumber == 3) image3 = imageFile;
-  //       if (imageNumber == 4) image4 = imageFile;
-  //       if (imageNumber == 5) image5 = imageFile;
-  //       if (imageNumber == 6) image6 = imageFile;
-  //     });
-  //   }
-  //
-  //   setState(() => isLoading = false);
-  // }
-
-
   Future<void> pickImage(int imageNumber) async {
     setState(() => isLoading = true);
 
@@ -345,32 +299,6 @@ class _OfficeProfileState extends State<OfficeProfile> {
     '${tenureOfWorkingYrs ?? "0"} years and ${tenureOfWorkingMonths ?? "0"} months';
   }
 
-
-  // Widget imagePickerBlock(int imageNumber, File? imageFile) {
-  //   return GestureDetector(
-  //     onTap: () => pickImage(imageNumber),
-  //     child: Container(
-  //       height: 150,
-  //       width: 150,
-  //       decoration: BoxDecoration(
-  //         border: Border.all(color: Colors.grey),
-  //         borderRadius: BorderRadius.circular(8),
-  //       ),
-  //       child: imageFile != null
-  //           ? Image.file(imageFile, fit: BoxFit.cover)
-  //           : Center(
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: const [
-  //             Icon(Icons.camera_alt, size: 50, color: Colors.grey),
-  //             SizedBox(height: 8),
-  //             Text('Capture Image'),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget imagePickerBlock(int imageNumber, File? imageFile, DateTime? timestamp, String? latLong) {
     return GestureDetector(
