@@ -1,11 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image/image.dart' as img;
-import 'package:exif/exif.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:intl/intl.dart';
 import 'package:urms/officeRecords/submit_Page.dart';
 import 'imageWithWatermark.dart';
 
@@ -294,9 +290,7 @@ class _OfficeProfileState extends State<OfficeProfile> {
   void initState() {
     super.initState();
 
-    // Safely initialize using other nullable fields here
-    tenureOfWorking =
-    '${tenureOfWorkingYrs ?? "0"} years and ${tenureOfWorkingMonths ?? "0"} months';
+
   }
 
 
@@ -902,36 +896,36 @@ Widget companyExistNo() {
         const SizedBox(height: 20,),
 
 
-        const Text('Permissive Exists On Which Floor', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        const Text('Premises Exists On Which Floor', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
 
         ListTile(
-          title: const Text('Only ground floor'),
+          title: const Text('Ground floor'),
           leading: Radio<String>(
-            value: 'Only ground floor',
+            value: 'Ground floor',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
         ),
         ListTile(
-          title: const Text('Ground to 1st floor'),
+          title: const Text('1st floor'),
           leading: Radio<String>(
-            value: 'Ground to 1st floor ',
+            value: '1st floor ',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
         ),
         ListTile(
-          title: const Text('Ground to 2nd floor'),
+          title: const Text('2nd floor'),
           leading: Radio<String>(
-            value: 'Ground to 2nd floor',
+            value: '2nd floor',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
         ),
         ListTile(
-          title: const Text('Ground to 3rd floor'),
+          title: const Text('3rd floor'),
           leading: Radio<String>(
-            value: 'Ground to 3rd floor',
+            value: '3rd floor',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
@@ -1051,7 +1045,7 @@ Widget companyExistNo() {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(3, image3, image1Timestamp, image1LatLong),
+            imagePickerBlock(3, image3, image3Timestamp, image3LatLong),
             imagePickerBlock(4, image4, image4Timestamp, image4LatLong),
           ],
         ),
@@ -1324,36 +1318,36 @@ Widget entryAllowedNo() {
         const SizedBox(height: 20,),
 
 
-        const Text('Permissive Exists On Which Floor', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        const Text('Premises Exists On Which Floor', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
 
         ListTile(
-          title: const Text('Only ground floor'),
+          title: const Text('Ground floor'),
           leading: Radio<String>(
-            value: 'Only ground floor',
+            value: 'Ground floor',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
         ),
         ListTile(
-          title: const Text('Ground to 1st floor'),
+          title: const Text('1st floor'),
           leading: Radio<String>(
-            value: 'Ground to 1st floor ',
+            value: '1st floor ',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
         ),
         ListTile(
-          title: const Text('Ground to 2nd floor'),
+          title: const Text('2nd floor'),
           leading: Radio<String>(
-            value: 'Ground to 2nd floor',
+            value: '2nd floor',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
         ),
         ListTile(
-          title: const Text('Ground to 3rd floor'),
+          title: const Text('3rd floor'),
           leading: Radio<String>(
-            value: 'Ground to 3rd floor',
+            value: '3rd floor',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
@@ -1569,7 +1563,7 @@ Widget entryAllowedNo() {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(3, image3, image1Timestamp, image1LatLong),
+            imagePickerBlock(3, image3, image3Timestamp, image3LatLong),
             imagePickerBlock(4, image4, image4Timestamp, image4LatLong),
           ],
         ),
@@ -1589,7 +1583,6 @@ Widget entryAllowedNo() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Form for Yes:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
 
         const SizedBox(height: 20,),
         const Text('Met Person Name and Designation: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
@@ -1639,10 +1632,14 @@ Widget entryAllowedNo() {
           ),
           onChanged: (value) {
             setState(() {
-              tenureOfWorkingYrs = value;  // Store the custom input directly in reasonOfUntrace
+              tenureOfWorkingYrs = value;
+              tenureOfWorking = '$tenureOfWorkingYrs years $tenureOfWorkingMonths months';
             });
           },
         ),
+
+
+
         const SizedBox(height: 10),
         TextField(
           decoration: const InputDecoration(
@@ -1651,12 +1648,11 @@ Widget entryAllowedNo() {
           ),
           onChanged: (value) {
             setState(() {
-              tenureOfWorkingMonths = value;  // Store the custom input directly in reasonOfUntrace
+              tenureOfWorkingMonths = value;
+              tenureOfWorking = '$tenureOfWorkingYrs years $tenureOfWorkingMonths months';
             });
           },
         ),
-
-        Text("${tenureOfWorking}", style: const TextStyle(fontWeight: FontWeight.bold)),
 
 
         const SizedBox(height: 20),
@@ -1723,36 +1719,36 @@ Widget entryAllowedNo() {
         const SizedBox(height: 20,),
 
 
-        const Text('Permissive Exists On Which Floor', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        const Text('Premises Exists On Which Floor', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
 
         ListTile(
-          title: const Text('Only ground floor'),
+          title: const Text('Ground floor'),
           leading: Radio<String>(
-            value: 'Only ground floor',
+            value: 'Ground floor',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
         ),
         ListTile(
-          title: const Text('Ground to 1st floor'),
+          title: const Text('1st floor'),
           leading: Radio<String>(
-            value: 'Ground to 1st floor ',
+            value: '1st floor ',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
         ),
         ListTile(
-          title: const Text('Ground to 2nd floor'),
+          title: const Text('2nd floor'),
           leading: Radio<String>(
-            value: 'Ground to 2nd floor',
+            value: '2nd floor',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
         ),
         ListTile(
-          title: const Text('Ground to 3rd floor'),
+          title: const Text('3rd floor'),
           leading: Radio<String>(
-            value: 'Ground to 3rd floor',
+            value: '3rd floor',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
@@ -2048,7 +2044,7 @@ Widget entryAllowedNo() {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(3, image3, image1Timestamp, image1LatLong),
+            imagePickerBlock(3, image3, image3Timestamp, image3LatLong),
             imagePickerBlock(4, image4, image4Timestamp, image4LatLong),
           ],
         ),
@@ -2124,8 +2120,6 @@ Widget detailsSharedNo() {
 
         const SizedBox(height: 20),
 
-        const SizedBox(height: 20),
-
         const Text('Total Floor?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
 
         ListTile(
@@ -2188,12 +2182,12 @@ Widget detailsSharedNo() {
         const SizedBox(height: 20,),
 
 
-        const Text('Permissive Exists On Which Floor', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        const Text('Premises Exists On Which Floor', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
 
         ListTile(
-          title: const Text('Only ground floor'),
+          title: const Text('Ground floor'),
           leading: Radio<String>(
-            value: 'Only ground floor',
+            value: 'Ground floor',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
@@ -2201,23 +2195,23 @@ Widget detailsSharedNo() {
         ListTile(
           title: const Text('Ground to 1st floor'),
           leading: Radio<String>(
-            value: 'Ground to 1st floor ',
+            value: '1st floor ',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
         ),
         ListTile(
-          title: const Text('Ground to 2nd floor'),
+          title: const Text('2nd floor'),
           leading: Radio<String>(
-            value: 'Ground to 2nd floor',
+            value: '2nd floor',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
         ),
         ListTile(
-          title: const Text('Ground to 3rd floor'),
+          title: const Text('3rd floor'),
           leading: Radio<String>(
-            value: 'Ground to 3rd floor',
+            value: '3rd floor',
             groupValue: permissiveExistsOnWhichFloor,
             onChanged: (value) => setState(() => permissiveExistsOnWhichFloor = value),
           ),
@@ -2466,7 +2460,7 @@ Widget detailsSharedNo() {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            imagePickerBlock(3, image3, image1Timestamp, image1LatLong),
+            imagePickerBlock(3, image3, image3Timestamp, image3LatLong),
             imagePickerBlock(4, image4, image4Timestamp, image4LatLong),
           ],
         ),

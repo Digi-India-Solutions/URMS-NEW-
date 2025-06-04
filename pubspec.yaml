@@ -44,14 +44,19 @@ dependencies:
   path: ^1.9.0
   permission_handler: ^11.0.1
   shared_preferences: ^2.2.2
-  isar: ^3.1.0
+
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  isar_generator: ^3.1.0 # same major version as isar
-  build_runner: ^2.4.6
+  flutter_launcher_icons: ^0.13.1
+  flutter_lints: ^5.0.0
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo/URMS_LOGO.png"  # Replace with your image path
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
