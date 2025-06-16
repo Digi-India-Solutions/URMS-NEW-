@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:urms/officeRecords/submit_Page.dart';
 import 'imageWithWatermark.dart';
+import 'package:flutter/foundation.dart';
 
 
 
@@ -63,35 +65,46 @@ class _OfficeProfileState extends State<OfficeProfile> {
   String? tenureOfWorkingMonths;
   String? tenureOfWorking;
   String? otherReasonTemp;
+  int? loadingImageNumber;
+  bool isCooldown = false;
+  int cooldownSecondsRemaining = 0;
+  Timer? cooldownTimer;
+
+
+  // Example variables for images & metadata
+File? image1, image2, image3, image4, image5, image6;
+DateTime? image1Timestamp, image2Timestamp, image3Timestamp, image4Timestamp, image5Timestamp, image6Timestamp;
+String? image1LatLong, image2LatLong, image3LatLong, image4LatLong, image5LatLong, image6LatLong;
+
 
   // String get tenureOfWorking =>
   //     '${tenureOfWorkingYrs ?? "0"} years and ${tenureOfWorkingMonths ?? "0"} months';
   // 'yes' or 'no'
 
   // Shared image files for both YES and NO form
-  File? image1;
-  DateTime? image1Timestamp;
-  String? image1LatLong;
+  // File? image1;
+  // DateTime? image1Timestamp;
+  // String? image1LatLong;
 
-  File? image2;
-  DateTime? image2Timestamp;
-  String? image2LatLong;
+  // File? image2;
+  // DateTime? image2Timestamp;
+  // String? image2LatLong;
 
-  File? image3;
-  DateTime? image3Timestamp;
-  String? image3LatLong;
+  // File? image3;
+  // DateTime? image3Timestamp;
+  // String? image3LatLong;
 
-  File? image4;
-  DateTime? image4Timestamp;
-  String? image4LatLong;
+  // File? image4;
+  // DateTime? image4Timestamp;
+  // String? image4LatLong;
 
-  File? image5;
-  DateTime? image5Timestamp;
-  String? image5LatLong;
+  // File? image5;
+  // DateTime? image5Timestamp;
+  // String? image5LatLong;
 
-  File? image6;
-  DateTime? image6Timestamp;
-  String? image6LatLong;
+  // File? image6;
+  // DateTime? image6Timestamp;
+  // String? image6LatLong;
 
 
   // @override
@@ -219,71 +232,174 @@ class _OfficeProfileState extends State<OfficeProfile> {
   }
 
 
-  final picker = ImagePicker();
+  // final picker = ImagePicker();
 
-  bool isLoading = false;
+  // bool isLoading = false;
 
-  Future<void> pickImage(int imageNumber) async {
-    setState(() => isLoading = true);
+  // Future<void> pickImage(int imageNumber) async {
+  //   setState(() => isLoading = true);
 
+  //   final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+  //   if (pickedFile != null) {
+  //     final imageFile = File(pickedFile.path);
+
+  //     // Compress image using your addWatermarkToImage function (which now just resizes)
+  //     final compressedFile = await addWatermarkToImage(imageFile);
+
+  //     DateTime now = DateTime.now();
+
+  //     String latLong = 'Unknown location';
+  //     try {
+  //       Position position = await Geolocator.getCurrentPosition(
+  //           desiredAccuracy: LocationAccuracy.high);
+  //       latLong = '${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)}';
+  //     } catch (e) {
+  //       latLong = 'Location unavailable';
+  //     }
+
+  //     setState(() {
+  //       switch (imageNumber) {
+  //         case 1:
+  //           image1 = compressedFile ?? imageFile;  // fallback to original if compression failed
+  //           image1Timestamp = now;
+  //           image1LatLong = latLong;
+  //           break;
+  //         case 2:
+  //           image2 = compressedFile ?? imageFile;
+  //           image2Timestamp = now;
+  //           image2LatLong = latLong;
+  //           break;
+  //         case 3:
+  //           image3 = compressedFile ?? imageFile;
+  //           image3Timestamp = now;
+  //           image3LatLong = latLong;
+  //           break;
+  //         case 4:
+  //           image4 = compressedFile ?? imageFile;
+  //           image4Timestamp = now;
+  //           image4LatLong = latLong;
+  //           break;
+  //         case 5:
+  //           image5 = compressedFile ?? imageFile;
+  //           image5Timestamp = now;
+  //           image5LatLong = latLong;
+  //           break;
+  //         case 6:
+  //           image6 = compressedFile ?? imageFile;
+  //           image6Timestamp = now;
+  //           image6LatLong = latLong;
+  //           break;
+  //       }
+  //       isLoading = false;
+  //     });
+  //   } else {
+  //     setState(() => isLoading = false);
+  //   }
+  // }
+
+final picker = ImagePicker();
+
+bool isLoading = false;
+
+// Example variables for images & metadata
+// File? image1, image2, image3, image4, image5, image6;
+// DateTime? image1Timestamp, image2Timestamp, image3Timestamp, image4Timestamp, image5Timestamp, image6Timestamp;
+// String? image1LatLong, image2LatLong, image3LatLong, image4LatLong, image5LatLong, image6LatLong;
+
+Future<void> pickImage(int imageNumber) async {
+  if (isCooldown) return;
+
+  setState(() {
+    loadingImageNumber = imageNumber;
+    isCooldown = true;
+    cooldownSecondsRemaining = 10;
+  });
+
+  startCooldownTimer();
+
+  try {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
-    if (pickedFile != null) {
-      final imageFile = File(pickedFile.path);
-
-      // Compress image using your addWatermarkToImage function (which now just resizes)
-      final compressedFile = await addWatermarkToImage(imageFile);
-
-      DateTime now = DateTime.now();
-
-      String latLong = 'Unknown location';
-      try {
-        Position position = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high);
-        latLong = '${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)}';
-      } catch (e) {
-        latLong = 'Location unavailable';
-      }
-
+    if (pickedFile == null) {
       setState(() {
-        switch (imageNumber) {
-          case 1:
-            image1 = compressedFile ?? imageFile;  // fallback to original if compression failed
-            image1Timestamp = now;
-            image1LatLong = latLong;
-            break;
-          case 2:
-            image2 = compressedFile ?? imageFile;
-            image2Timestamp = now;
-            image2LatLong = latLong;
-            break;
-          case 3:
-            image3 = compressedFile ?? imageFile;
-            image3Timestamp = now;
-            image3LatLong = latLong;
-            break;
-          case 4:
-            image4 = compressedFile ?? imageFile;
-            image4Timestamp = now;
-            image4LatLong = latLong;
-            break;
-          case 5:
-            image5 = compressedFile ?? imageFile;
-            image5Timestamp = now;
-            image5LatLong = latLong;
-            break;
-          case 6:
-            image6 = compressedFile ?? imageFile;
-            image6Timestamp = now;
-            image6LatLong = latLong;
-            break;
-        }
-        isLoading = false;
+        loadingImageNumber = null;
       });
-    } else {
-      setState(() => isLoading = false);
+      return;
     }
+
+    final imageFile = File(pickedFile.path);
+    final compressedFile = await addWatermarkToImage(imageFile);
+
+    String latLong = 'Unknown location';
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.low);
+      latLong = '${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)}';
+    } catch (_) {
+      latLong = 'Location unavailable';
+    }
+
+    final now = DateTime.now();
+    final fileToUse = compressedFile ?? imageFile;
+
+    setState(() {
+      switch (imageNumber) {
+        case 1:
+          image1 = fileToUse;
+          image1Timestamp = now;
+          image1LatLong = latLong;
+          break;
+        case 2:
+          image2 = fileToUse;
+          image2Timestamp = now;
+          image2LatLong = latLong;
+          break;
+        case 3:
+          image3 = fileToUse;
+          image3Timestamp = now;
+          image3LatLong = latLong;
+          break;
+        case 4:
+          image4 = fileToUse;
+          image4Timestamp = now;
+          image4LatLong = latLong;
+          break;
+        case 5:
+          image5 = fileToUse;
+          image5Timestamp = now;
+          image5LatLong = latLong;
+          break;
+        case 6:
+          image6 = fileToUse;
+          image6Timestamp = now;
+          image6LatLong = latLong;
+          break;
+      }
+      loadingImageNumber = null;
+    });
+  } catch (e) {
+    print("PickImage Error: $e");
+    setState(() => loadingImageNumber = null);
   }
+}
+
+
+void startCooldownTimer() {
+  cooldownTimer?.cancel(); // Cancel any existing timer
+
+  cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    if (cooldownSecondsRemaining > 1) {
+      setState(() => cooldownSecondsRemaining--);
+    } else {
+      timer.cancel();
+      setState(() {
+        isCooldown = false;
+        cooldownSecondsRemaining = 0;
+      });
+    }
+  });
+}
 
 
   @override
@@ -295,44 +411,67 @@ class _OfficeProfileState extends State<OfficeProfile> {
 
 
   Widget imagePickerBlock(int imageNumber, File? imageFile, DateTime? timestamp, String? latLong) {
-    return GestureDetector(
-      onTap: () => pickImage(imageNumber),
-      child: Column(
-        children: [
-          Container(
-            height: 150,
-            width: 150,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: imageFile != null
-                ? Image.file(imageFile, fit: BoxFit.cover)
-                : Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.camera_alt, size: 50, color: Colors.grey),
-                  SizedBox(height: 8),
-                  Text('Capture Image'),
-                ],
+  final bool isCurrentLoading = loadingImageNumber == imageNumber;
+
+  return GestureDetector(
+    onTap: () {
+      if (!isCooldown && !isCurrentLoading) {
+        pickImage(imageNumber);
+      }
+    },
+    child: Column(
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              height: 150,
+              width: 150,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
               ),
+              child: imageFile != null
+                  ? Image.file(imageFile, fit: BoxFit.cover)
+                  : const Center(
+                      child: Icon(Icons.camera_alt, size: 50, color: Colors.grey),
+                    ),
             ),
-          ),
-          const SizedBox(height: 4),
-          if (timestamp != null && latLong != null)
-            Text(
-              'Time:${timestamp.toLocal().toString().split('.')[0]}\n'
-                  'Location: $latLong',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 10, color: Colors.black54),
-            )
-          else
-            const SizedBox(height: 40),
-        ],
-      ),
-    );
-  }
+            if (isCurrentLoading)
+              const CircularProgressIndicator(),
+            if (isCooldown && !isCurrentLoading)
+              Container(
+                height: 150,
+                width: 150,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text(
+                    'Wait $cooldownSecondsRemaining s',
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        if (timestamp != null && latLong != null)
+          Text(
+            'Time: ${timestamp.toLocal().toString().split('.')[0]}\n'
+            'Location: $latLong',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 10, color: Colors.black54),
+          )
+        else
+          const SizedBox(height: 40),
+      ],
+    ),
+  );
+}
+
+
 
 
 
@@ -2599,6 +2738,20 @@ Widget detailsSharedNo() {
                                 'image4': image4,
                                 'image5': image5,
                                 'image6': image6,
+                                'image1LatLong': image1LatLong,
+                                'image2LatLong': image2LatLong,
+                                'image3LatLong': image3LatLong,
+                                'image4LatLong': image4LatLong,
+                                'image5LatLong': image5LatLong,
+                                'image6LatLong': image6LatLong,
+                                'image1Timestamp': image1Timestamp,
+                                'image2Timestamp': image2Timestamp,
+                                'image3Timestamp': image3Timestamp,
+                                'image4Timestamp': image4Timestamp,
+                                'image5Timestamp': image5Timestamp,
+                                'image6Timestamp': image6Timestamp,
+
+
                           // Add any other values you want to pass...
                         },
                       ),

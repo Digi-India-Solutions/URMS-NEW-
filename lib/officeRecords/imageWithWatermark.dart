@@ -2,39 +2,36 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart';
 
 
-Future<File?> addWatermarkToImage(File originalImageFile) async {
+Future<File?> addWatermarkToImage(File imageFile) async {
   try {
-    // Load image bytes
-    final Uint8List imageBytes = await originalImageFile.readAsBytes();
-    final img.Image? originalImg = img.decodeImage(imageBytes);
-    if (originalImg == null) throw Exception('Image decoding failed.');
+    final bytes = await imageFile.readAsBytes();
+    final img.Image? decoded = img.decodeImage(bytes);
+    if (decoded == null) return null;
 
-    // Resize image for compression (e.g., max width or height = 800px)
-    final int maxDimension = 800;
-    img.Image resizedImg;
-    if (originalImg.width > originalImg.height) {
-      resizedImg = img.copyResize(originalImg, width: maxDimension);
+    // Resize to reduce memory usage
+    const int maxDimension = 480;
+    img.Image resized;
+    if (decoded.width > decoded.height) {
+      resized = img.copyResize(decoded, width: maxDimension);
     } else {
-      resizedImg = img.copyResize(originalImg, height: maxDimension);
+      resized = img.copyResize(decoded, height: maxDimension);
     }
 
-    // Encode resized image to PNG
-    final List<int> compressedBytes = img.encodePng(resizedImg);
-
-    // Save to file
-    final outputDir = await getTemporaryDirectory();
-    final outputPath = '${outputDir.path}/compressed_${DateTime.now().millisecondsSinceEpoch}.png';
+    final List<int> compressedBytes = img.encodeJpg(resized, quality: 60);
+    final dir = await getTemporaryDirectory();
+    final outputPath = '${dir.path}/compressed_${DateTime.now().millisecondsSinceEpoch}.jpg';
     final outputFile = File(outputPath);
     await outputFile.writeAsBytes(compressedBytes);
-
     return outputFile;
   } catch (e) {
-    print("Error: $e");
+    print("Compression error: $e");
     return null;
   }
 }
+
 
 
 
